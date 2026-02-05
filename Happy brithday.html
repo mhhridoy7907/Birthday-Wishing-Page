@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Birthday Dot Love Bubble</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+html,body{
+  margin:0;
+  padding:0;
+  background:black;
+  overflow:hidden;
+}
+canvas{display:block;}
+</style>
+</head>
+<body>
+
+<canvas id="canvas"></canvas>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+canvas.width = innerWidth;
+canvas.height = innerHeight;
+
+const DOT_COUNT = 3000;
+const dots = [];
+const bubbles = [];
+let textMode = false;
+
+// ---------- DOT ----------
+class Dot{
+  constructor(){
+    this.size = Math.random()*1.4 + 0.6;
+    this.speed = Math.random()*0.05 + 0.04;
+    this.baseColor = Math.random()<0.5 ? "hotpink" : "white";
+    this.color = this.baseColor;
+
+    this.x = Math.random()*canvas.width;
+    this.y = Math.random()*canvas.height;
+    this.tx = Math.random()*canvas.width;
+    this.ty = Math.random()*canvas.height;
+  }
+
+  update(){
+    this.x += (this.tx - this.x) * this.speed;
+    this.y += (this.ty - this.y) * this.speed;
+
+    if(!textMode && Math.hypot(this.x-this.tx,this.y-this.ty)<5){
+      this.tx = Math.random()*canvas.width;
+      this.ty = Math.random()*canvas.height;
+    }
+  }
+
+  draw(){
+    ctx.beginPath();
+    ctx.shadowBlur = 14;
+    ctx.shadowColor = this.color;
+    ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    ctx.fillStyle = this.color;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+}
+
+// ---------- LOVE / NORMAL BUBBLE ----------
+class Bubble{
+  constructor(){
+    this.x = Math.random()*canvas.width;
+    this.y = canvas.height + Math.random()*200;
+    this.size = Math.random()*10 + 6;
+    this.speed = Math.random()*3 + 2.5; // 🔥 FAST
+    this.alpha = 1;
+    this.isLove = Math.random() < 0.4; // ❤️ heart bubble chance
+  }
+
+  update(){
+    this.y -= this.speed;
+    this.alpha -= 0.01;
+  }
+
+  draw(){
+    ctx.globalAlpha = this.alpha;
+
+    if(this.isLove){
+      drawHeart(this.x, this.y, this.size);
+    }else{
+      ctx.beginPath();
+      ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+      ctx.strokeStyle = "rgba(255,170,255,0.9)";
+      ctx.stroke();
+    }
+
+    ctx.globalAlpha = 1;
+  }
+}
+
+// ---------- HEART DRAW ----------
+function drawHeart(x,y,s){
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.bezierCurveTo(x-s, y-s, x-2*s, y+s/2, x, y+2*s);
+  ctx.bezierCurveTo(x+2*s, y+s/2, x+s, y-s, x, y);
+  ctx.strokeStyle = "rgba(255,100,150,0.9)";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+// ---------- TEXT POINTS ----------
+function getTextPoints(text,y,font){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.font = font;
+  ctx.textAlign = "center";
+  ctx.fillStyle = "white";
+  ctx.fillText(text,canvas.width/2,y);
+
+  const data = ctx.getImageData(0,0,canvas.width,canvas.height).data;
+  const pts=[];
+  for(let y=0;y<canvas.height;y+=6){
+    for(let x=0;x<canvas.width;x+=6){
+      if(data[(y*canvas.width+x)*4+3]>150){
+        pts.push({x,y});
+      }
+    }
+  }
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  return pts;
+}
+
+// ---------- CREATE DOTS ----------
+for(let i=0;i<DOT_COUNT;i++) dots.push(new Dot());
+
+// ---------- CLICK TOGGLE ----------
+addEventListener("click",()=>{
+  textMode = !textMode;
+
+  if(textMode){
+    const t1 = getTextPoints("Hello", canvas.height/2-60, "bold 120px Arial");
+    const t2 = getTextPoints("HRIDOY", canvas.height/2+60, "bold 110px Arial");
+
+    dots.forEach((d,i)=>{
+      if(i < t1.length){
+        d.tx = t1[i].x;
+        d.ty = t1[i].y;
+        d.color = "hotpink";
+      }else{
+        const p = t2[(i-t1.length)%t2.length];
+        d.tx = p.x;
+        d.ty = p.y;
+        d.color = "white";
+      }
+    });
+  }else{
+    dots.forEach(d=>{
+      d.tx = Math.random()*canvas.width;
+      d.ty = Math.random()*canvas.height;
+      d.color = d.baseColor;
+    });
+    bubbles.length = 0;
+  }
+});
+
+// ---------- ANIMATE ----------
+function animate(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  if(textMode && Math.random()<0.5){
+    bubbles.push(new Bubble());
+  }
+
+  bubbles.forEach((b,i)=>{
+    b.update();
+    b.draw();
+    if(b.alpha<=0) bubbles.splice(i,1);
+  });
+
+  dots.forEach(d=>{
+    d.update();
+    d.draw();
+  });
+
+  requestAnimationFrame(animate);
+}
+animate();
+
+// ---------- RESIZE ----------
+addEventListener("resize",()=>{
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
+});
+</script>
+
+</body>
+</html>
