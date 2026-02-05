@@ -1,5 +1,11 @@
 # Birthday Dot Love Bubble 🎉💖
 
+## 🎥 Demo Video
+
+[Watch the animation video](1234.mp4)  
+*Click to open/play the local video file.*
+---
+
 A mesmerizing interactive **dot and bubble animation** for celebrating birthdays!  
 Click anywhere on the canvas to toggle a magical birthday text animation with floating hearts and glowing dots.
 
