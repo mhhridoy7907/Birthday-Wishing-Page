@@ -2,8 +2,10 @@
 
 ## 🎥 Demo Video
 
-[Watch the animation video](1234.mp4)  
-*Click to open/play the local video file.*
+<video width="600" controls>
+  <source src="1234.webm" type="video/webm">
+  Your browser does not support the video tag.
+</video>
 ---
 
 A mesmerizing interactive **dot and bubble animation** for celebrating birthdays!  
