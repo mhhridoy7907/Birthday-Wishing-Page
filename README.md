@@ -3,7 +3,7 @@
 ## 🎥 Demo Video
 
 <video width="600" controls>
-  <source src="1234.webm" type="video/webm">
+  <source src="1234.wmv" type="video/wmv">
   Your browser does not support the video tag.
 </video>
 ---
